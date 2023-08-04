@@ -22,6 +22,12 @@ static char *argv0;
 #include "win.h"
 #include "hb.h"
 
+#include <stdlib.h>
+#include <stddef.h>
+
+#define guint8	uint8_t
+#define g_new0(struct_type, n_structs) malloc(sizeof(struct_type) * n_structs)
+
 /* types used in config.h */
 typedef struct {
 	uint mod;

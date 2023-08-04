@@ -5,8 +5,7 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "JetBrainsMono Nerd Font :pixelsize=15:antialias=true:autohint=true";
-static char *font2[] = { "JetBrainsMono Nerd Font :pixelsize=15:antialias=true:autohint=true" };
+static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
 static int borderpx = 0;
 
 /*
@@ -94,7 +93,7 @@ const int boxdraw_braille = 1;
 static int bellvolume = 0;
 
 /* default TERM value */
-char *termname = "st-256color";
+char *termname = "xterm-256color"
 
 /*
  * spaces per tab
@@ -192,7 +191,6 @@ static unsigned int defaultattr = 11;
  */
 ResourcePref resources[] = {
   { "font",         STRING,  &font },
-  { "fontalt0",     STRING,  &font2[0] },
   { "color0",       STRING,  &colorname[0] },
   { "color1",       STRING,  &colorname[1] },
   { "color2",       STRING,  &colorname[2] },

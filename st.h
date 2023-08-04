@@ -4,7 +4,6 @@
 #include <sys/types.h>
 
 #include <gd.h>
-#include <glib.h>
 
 /* macros */
 #define LEN(a)			(sizeof(a) / sizeof(a)[0])
@@ -21,6 +20,9 @@
 
 #define TRUECOLOR(r,g,b)	(1 << 24 | (r) << 16 | (g) << 8 | (b))
 #define IS_TRUECOL(x)		(1 << 24 & (x))
+
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 enum glyph_attribute {
 	ATTR_NULL       = 0,
