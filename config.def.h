@@ -5,7 +5,10 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
+static char *font = "Liberation Mono:pixelsize=14:antialias=true:autohint=true";
+static char *font2[] = {
+	"Liberation Mono:pixelsize=12:antialias=true:autohint=true"
+};
 static int borderpx = 0;
 
 /*
@@ -93,7 +96,7 @@ const int boxdraw_braille = 1;
 static int bellvolume = 0;
 
 /* default TERM value */
-char *termname = "xterm-256color"
+char *termname = "xterm-256color";
 
 /*
  * spaces per tab
@@ -110,37 +113,105 @@ char *termname = "xterm-256color"
  *
  *	stty tabs
  */
-unsigned int tabspaces = 8;
+unsigned int tabspaces = 4;
 
 /* bg opacity */
-float alpha = 1.0;
+float alpha = 0.95;
+
+#if 1  //gruvbox
+static const char *colorname[] = {
+	/* 8 normal colors */
+	[0] = "#282828", /* black   */  /* hard contrast: #1d2021 / soft contrast: #32302f */
+	[1] = "#cc241d", /* red     */
+	[2] = "#98971a", /* green   */
+	[3] = "#d79921", /* yellow  */
+	[4] = "#458588", /* blue    */
+	[5] = "#b16286", /* magenta */
+	[6] = "#689d6a", /* cyan    */
+	[7] = "#a89984", /* white   */
+
+	/* 8 bright colors */
+	[8]  = "#928374", /* black   */
+	[9]  = "#fb4934", /* red     */
+	[10] = "#b8bb26", /* green   */
+	[11] = "#fabd2f", /* yellow  */
+	[12] = "#83a598", /* blue    */
+	[13] = "#d3869b", /* magenta */
+	[14] = "#8ec07c", /* cyan    */
+	[15] = "#ebdbb2", /* white   */
+
+	[255] = 0,
+
+	/* special colors */
+	"#add8e6", /* 256 -> cursor */
+	"#555555", /* 257 -> rev cursor*/
+	"#282828", /* background */
+	"#ebdbb2", /* foreground */
+};
+#elif 0 // Solarized
+/* Terminal colors (16 first used in escape sequence) */
+static const char *colorname[] = {
+	/* 8 normal colors */
+	[0] = "#002b36", /* black   */
+	[1] = "#dc322f", /* red     */
+	[2] = "#859900", /* green   */
+	[3] = "#b58900", /* yellow  */
+	[4] = "#268bd2", /* blue    */
+	[5] = "#6c71c4", /* magenta */
+	[6] = "#2aa198", /* cyan    */
+	[7] = "#93a1a1", /* white   */
+
+	/* 8 bright colors */
+	[8]  = "#657b83", /* black   */
+	[9]  = "#dc322f", /* red     */
+	[10] = "#859900", /* green   */
+	[11] = "#b58900", /* yellow  */
+	[12] = "#268bd2", /* blue    */
+	[13] = "#6c71c4", /* magenta */
+	[14] = "#2aa198", /* cyan    */
+	[15] = "#fdf6e3", /* white   */
+	[255] = 0,
+	/* more colors can be added after 255 to use with DefaultXX */
+	"#add8e6", /* 256 -> cursor */
+	"#555555", /* 257 -> rev cursor*/
+	"#002b36", /* 258 -> bg */
+	"#93a1a1", /* 259 -> fg */
+};
+
+#elif 0 // Nerd
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
-  "#282828", /* hard contrast: #1d2021 / soft contrast: #32302f */
-  "#cc241d",
-  "#98971a",
-  "#d79921",
-  "#458588",
-  "#b16286",
-  "#689d6a",
-  "#a89984",
-  "#928374",
-  "#fb4934",
-  "#b8bb26",
-  "#fabd2f",
-  "#83a598",
-  "#d3869b",
-  "#8ec07c",
-  "#ebdbb2",
-  [255] = 0,
-  /* more colors can be added after 255 to use with DefaultXX */
-  "#add8e6", /* 256 -> cursor */
-  "#555555", /* 257 -> rev cursor*/
-  "#282828", /* 258 -> bg */
-  "#ffffff", /* 259 -> fg */
+	/* 8 normal colors */
+	[0] = "#3b4252", /* black   */
+	[1] = "#bf616a", /* red     */
+	[2] = "#a3be8c", /* green   */
+	[3] = "#ebcb8b", /* yellow  */
+	[4] = "#81a1c1", /* blue    */
+	[5] = "#b48ead", /* magenta */
+	[6] = "#88c0d0", /* cyan    */
+	[7] = "#e5e9f0", /* white   */
+
+	/* 8 bright colors */
+	[8]  = "#4c566a", /* black   */
+	[9]  = "#bf616a", /* red     */
+	[10] = "#a3be8c", /* green   */
+	[11] = "#ebcb8b", /* yellow  */
+	[12] = "#81a1c1", /* blue    */
+	[13] = "#b48ead", /* magenta */
+	[14] = "#8fbcbb", /* cyan    */
+	[15] = "#eceff4", /* white   */
+	[255] = 0,
+	/* more colors can be added after 255 to use with DefaultXX */
+	"#add8e6", /* 256 -> cursor */
+	"#555555", /* 257 -> rev cursor*/
+	"#2e3440", /* 258 -> bg */
+	"#d8dee9", /* 259 -> fg */
 };
 
+#else
+#error "Color theme is not set"
+#endif
 
 /*
  * Default colors (colorname index)
@@ -164,7 +235,7 @@ unsigned int defaultrcs = 257;
  * 7: Blinking st cursor
  * 8: Steady st cursor
  */
-static unsigned int cursorshape = 1;
+static unsigned int cursorshape = 2;
 
 /*
  * Default columns and rows numbers
@@ -190,7 +261,7 @@ static unsigned int defaultattr = 11;
  * Xresources preferences to load at startup
  */
 ResourcePref resources[] = {
-  { "font",         STRING,  &font },
+  { "font",         STRING,  &font2 },
   { "color0",       STRING,  &colorname[0] },
   { "color1",       STRING,  &colorname[1] },
   { "color2",       STRING,  &colorname[2] },
