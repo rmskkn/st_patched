@@ -36,7 +36,7 @@
 #define ESC_ARG_SIZ   16
 #define STR_BUF_SIZ   ESC_BUF_SIZ
 #define STR_ARG_SIZ   ESC_ARG_SIZ
-#define HISTSIZE      2000
+#define HISTSIZE      10000
 
 /* macros */
 #define IS_SET(flag)		((term.mode & (flag)) != 0)
@@ -48,7 +48,6 @@
 #define TLINE(y)		((y) < term.scr ? term.hist[((y) + term.histi - \
 				term.scr + HISTSIZE + 1) % HISTSIZE] : \
 				term.line[(y) - term.scr])
-
 #define TLINE_HIST(y)           ((y) <= HISTSIZE-term.row+2 ? term.hist[(y)] : term.line[(y-HISTSIZE+term.row-3)])
 
 /* constants */
@@ -1137,6 +1136,7 @@ kscrollup(const Arg* a)
 	}
 }
 
+
 void
 tscrolldown(int orig, int n, int copyhist)
 {
@@ -1144,6 +1144,13 @@ tscrolldown(int orig, int n, int copyhist)
 	Line temp;
 
 	LIMIT(n, 0, term.bot-orig+1);
+	if (copyhist) {
+		term.histi = (term.histi - 1 + HISTSIZE) % HISTSIZE;
+		temp = term.hist[term.histi];
+		term.hist[term.histi] = term.line[term.bot];
+		term.line[term.bot] = temp;
+	}
+
 
 	if (copyhist) {
 		term.histi = (term.histi - 1 + HISTSIZE) % HISTSIZE;
@@ -1161,7 +1168,8 @@ tscrolldown(int orig, int n, int copyhist)
 		term.line[i-n] = temp;
 	}
 
-	selscroll(orig, n);
+	if (term.scr == 0)
+		selscroll(orig, n);
 }
 
 void
@@ -1182,6 +1190,16 @@ tscrollup(int orig, int n, int copyhist)
 	if (term.scr > 0 && term.scr < HISTSIZE)
 		term.scr = MIN(term.scr + n, HISTSIZE-1);
 
+	if (copyhist) {
+		term.histi = (term.histi + 1) % HISTSIZE;
+		temp = term.hist[term.histi];
+		term.hist[term.histi] = term.line[orig];
+		term.line[orig] = temp;
+	}
+
+	if (term.scr > 0 && term.scr < HISTSIZE)
+		term.scr = MIN(term.scr + n, HISTSIZE-1);
+
 	tclearregion(0, orig, term.col-1, orig+n-1);
 	tsetdirt(orig+n, term.bot);
 
@@ -1191,7 +1209,8 @@ tscrollup(int orig, int n, int copyhist)
 		term.line[i+n] = temp;
 	}
 
-	selscroll(orig, -n);
+	if (term.scr == 0)
+		selscroll(orig, -n);
 }
 
 void
