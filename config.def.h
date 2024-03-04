@@ -118,7 +118,7 @@ unsigned int tabspaces = 4;
 /* bg opacity */
 float alpha = 0.95;
 
-#if 1  //gruvbox
+#if 0  //gruvbox
 static const char *colorname[] = {
 	/* 8 normal colors */
 	[0] = "#282828", /* black   */  /* hard contrast: #1d2021 / soft contrast: #32302f */
@@ -148,7 +148,7 @@ static const char *colorname[] = {
 	"#282828", /* background */
 	"#ebdbb2", /* foreground */
 };
-#elif 0 // Solarized
+#elif 1 // Solarized
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
