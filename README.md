@@ -11,7 +11,7 @@
 xbps-install libXft-devel libX11-devel harfbuzz-devel libXext-devel libXrender-devel libXinerama-devel
 
 # Debian (and ubuntu probably)
-apt install build-essential libxft-dev libharfbuzz-dev libgd-dev
+apt install build-essential libxft-dev libharfbuzz-dev libgd-dev libglib2.0-dev
 
 # Nix
 nix develop github:siduck/st
