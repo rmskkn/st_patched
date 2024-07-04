@@ -126,3 +126,19 @@ you can change all of these in config.h
 
 - [live-reload](https://github.com/nimaipatel/st)
 - [patch_column](https://github.com/nimaipatel/st/blob/all/patches/7672445bab01cb4e861651dc540566ac22e25812.diff)
+
+# Known bugs
+
+Xtf lib has a bug and can't load some fonts. As a result, st closes unexpectedly.
+
+```
+XFT_DEBUG=1 ./st
+XftFontInfoFill: /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf
+X Error of failed request:  BadLength (poly request too large or internal Xlib length error)
+```
+As a workaround, need to install unifont package:
+```
+sudo apt install unifont
+```
+
+Tested under Ubuntu 20.04.
