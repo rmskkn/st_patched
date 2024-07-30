@@ -298,22 +298,22 @@ ResourcePref resources[] = {
  * Beware that overloading Button1 will disable the selection.
  */
 const unsigned int mousescrollincrement = 3;
+static MouseShortcut mshortcuts[] = {
+  /* button               mask            string */
+  { Button4,              XK_NO_MOD,      "\031" },
+  { Button5,              XK_NO_MOD,      "\005" },
+};
+
 /* Internal keyboard shortcuts. */
 #define MODKEY Mod1Mask
 #define TERMMOD (Mod4Mask|ShiftMask)
 
-static MouseShortcut mshortcuts[] = {
-    /* button               mask            string */
-    { Button4,              XK_NO_MOD,      "\031" },
-    { Button5,              XK_NO_MOD,      "\005" },
-};
-
 MouseKey mkeys[] = {
-    /* button               mask            function        argument */
-    { Button4,              XK_NO_MOD,      kscrollup,      {.i =  mousescrollincrement} },
-    { Button5,              XK_NO_MOD,      kscrolldown,    {.i =  mousescrollincrement} },
-    { Button4,              Mod4Mask,        zoom,           {.f =  +1} },
-    { Button5,              Mod4Mask,        zoom,           {.f =  -1} },
+  /* button               mask            function        argument */
+  { Button4,              XK_NO_MOD,      kscrollup,      {.i =  mousescrollincrement} },
+  { Button5,              XK_NO_MOD,      kscrolldown,    {.i =  mousescrollincrement} },
+  { Button4,              Mod4Mask,        zoom,           {.f =  +1} },
+  { Button5,              Mod4Mask,        zoom,           {.f =  -1} },
 };
 
 static char *openurlcmd[] = { "/bin/sh", "-c", "st-urlhandler", "externalpipe", NULL };
@@ -325,26 +325,33 @@ static char *copyurlcmd[] = { "/bin/sh", "-c",
 static char *copyoutput[] = { "/bin/sh", "-c", "st-copyout", "externalpipe", NULL };
 
 static Shortcut shortcuts[] = {
-  /* mask                 keysym           function        argument */
-  { XK_ANY_MOD,           XK_Break,        sendbreak,      {.i =  0} },
-  { ControlMask,          XK_Print,        toggleprinter,  {.i =  0} },
-  { ShiftMask,            XK_Print,        printscreen,    {.i =  0} },
-  { XK_ANY_MOD,           XK_Print,        printsel,       {.i =  0} },
-  { MODKEY,              XK_comma,         zoom,           {.f = +1} },
+  /* mask                 keysym          function        argument */
+  { XK_ANY_MOD,           XK_Break,       sendbreak,      {.i =  0} },
+  { ControlMask,          XK_Print,       toggleprinter,  {.i =  0} },
+  { ShiftMask,            XK_Print,       printscreen,    {.i =  0} },
+  { XK_ANY_MOD,           XK_Print,       printsel,       {.i =  0} },
+  { MODKEY,              XK_comma,       zoom,           {.f = +1} },
   { MODKEY,              XK_period,        zoom,           {.f = -1} },
-  { MODKEY,               XK_g,            zoomreset,      {.f =  0} },
-  { ControlMask | ShiftMask,    XK_C,      clipcopy,       {.i =  0} },
-  { ControlMask | ShiftMask,    XK_V,      clippaste,      {.i =  0} },
-  { XK_ANY_MOD,		      Button2,	       selpaste,	   {.i =  0} },
-  { MODKEY,         XK_Num_Lock,           numlock,        {.i =  0} },
-  { ControlMask | ShiftMask,    XK_U,      iso14755,       {.i =  0} },
-
+  { MODKEY,               XK_g,        zoomreset,      {.f =  0} },
+  { ControlMask | ShiftMask,               XK_C,           clipcopy,       {.i =  0} },
+  { ShiftMask,            XK_Insert,      clippaste,      {.i =  0} },
+  { ControlMask | ShiftMask,               XK_V,           clippaste,      {.i =  0} },
+  { XK_ANY_MOD,		Button2,	selpaste,	{.i =  0} },
+  { MODKEY,               XK_Num_Lock,    numlock,        {.i =  0} },
+  { ControlMask | ShiftMask,               XK_U,           iso14755,       {.i =  0} },
+  { ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} },
+  { ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} },
+  { MODKEY,               XK_Page_Up,     kscrollup,      {.i = -1} },
+  { MODKEY,               XK_Page_Down,   kscrolldown,    {.i = -1} },
+  { MODKEY,               XK_k,           kscrollup,      {.i =  1} },
+  { MODKEY,               XK_j,           kscrolldown,    {.i =  1} },
   { MODKEY,               XK_Up,          kscrollup,      {.i =  1} },
   { MODKEY,               XK_Down,        kscrolldown,    {.i =  1} },
-
-  { MODKEY,		          XK_s,           changealpha,	{.f = -0.05} },
-  { MODKEY,		          XK_a,		      changealpha,	{.f = +0.05} },
-  { MODKEY,		          XK_m,	          changealpha,	{.f = +2.00} },
+  { MODKEY,               XK_u,           kscrollup,      {.i = -1} },
+  { MODKEY,               XK_d,           kscrolldown,    {.i = -1} },
+  { MODKEY,		XK_s,		changealpha,	{.f = -0.05} },
+  { MODKEY,		XK_a,		changealpha,	{.f = +0.05} },
+  { MODKEY,		XK_m,		changealpha,	{.f = +2.00} },
   { TERMMOD,              XK_Up,          zoom,           {.f = +1} },
   { TERMMOD,              XK_Down,        zoom,           {.f = -1} },
   { TERMMOD,              XK_K,           zoom,           {.f = +1} },
