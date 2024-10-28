@@ -136,10 +136,12 @@ XFT_DEBUG=1 ./st
 XftFontInfoFill: /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf
 X Error of failed request:  BadLength (poly request too large or internal Xlib length error)
 ```
+
 As a workaround, need to remove problem font and install unifont package:
 ```
 sudo apt remove fonts-noto-color-emoji
 sudo apt install unifont
 ```
 
-Tested under Ubuntu 20.04.
+Tested on Ubuntu 20.04.
+
