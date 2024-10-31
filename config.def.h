@@ -19,7 +19,7 @@ static int borderpx = 0;
  * 4: value of shell in /etc/passwd
  * 5: value of shell in config.h
  */
-static char *shell = "/bin/sh";
+static char *shell = "/bin/bash";
 char *utmp = NULL;
 char *stty_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
@@ -116,7 +116,7 @@ char *termname = "xterm-256color";
 unsigned int tabspaces = 4;
 
 /* bg opacity */
-float alpha = 0.96;
+float alpha = 1.0;
 
 /* Themes are located  at https://github.com/honza/base16-st/tree/master */
 #if 0  //gruvbox
@@ -149,7 +149,7 @@ static const char *colorname[] = {
 	"#282828", /* background */
 	"#ebdbb2", /* foreground */
 };
-#elif 0 // Solarized
+#elif 1 // Solarized
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
@@ -175,7 +175,7 @@ static const char *colorname[] = {
 	/* more colors can be added after 255 to use with DefaultXX */
 	"#add8e6", /* 256 -> cursor */
 	"#555555", /* 257 -> rev cursor*/
-	"#002b36", /* 258 -> bg */
+	"#002630", /* 258 -> bg */
 	"#93a1a1", /* 259 -> fg */
 };
 
@@ -189,7 +189,6 @@ unsigned int defaultcs = 256;
 unsigned int defaultrcs = 257;
 
 #elif 0 // Nerd
-
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
@@ -218,34 +217,6 @@ static const char *colorname[] = {
 	"#2e3440", /* 258 -> bg */
 	"#d8dee9", /* 259 -> fg */
 };
-#elif 1 /* pop base16 */
-static const char *colorname[] = {
-    "#000000", /* base00 */
-    "#eb008a", /* base08 */
-    "#37b349", /* base0B */
-    "#f8ca12", /* base0A */
-    "#0e5a94", /* base0D */
-    "#b31e8d", /* base0E */
-    "#00aabb", /* base0C */
-    "#d0d0d0", /* base05 */
-
-    "#505050", /* base03 */
-    "#f29333", /* base09 */
-    "#202020", /* base01 */
-    "#303030", /* base02 */
-    "#b0b0b0", /* base04 */
-    "#e0e0e0", /* base06 */
-    "#7a2d00", /* base0F */
-    "#ffffff", /* base07 */
-
-    [255] = 0,
-};
-
-unsigned int defaultfg = 7;
-unsigned int defaultbg = 0;
-unsigned int defaultcs = 13;
-unsigned int defaultrcs = 0;
-
 #else
 #error "Color theme is not set"
 #endif
