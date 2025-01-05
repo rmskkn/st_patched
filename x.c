@@ -69,6 +69,9 @@ typedef struct {
 #define XK_NO_MOD     0
 #define XK_SWITCH_MOD (1<<13|1<<14)
 
+/* size of title stack */
+#define TITLESTACKSIZE 8
+
 /* function definitions used in config.h */
 static void clipcopy(const Arg *);
 static void clippaste(const Arg *);
@@ -81,6 +84,9 @@ static void zoomreset(const Arg *);
 
 /* config.h for applying patches and the configuration. */
 #include "config.h"
+
+/* size of title stack */
+#define TITLESTACKSIZE 8
 
 /* XEMBED messages */
 #define XEMBED_FOCUS_IN  4
@@ -159,6 +165,9 @@ typedef struct {
 	Font font, bfont, ifont, ibfont;
 	GC gc;
 } DC;
+
+static int tstki; /* title stack index */
+static char *titlestack[TITLESTACKSIZE]; /* title stack */
 
 static inline ushort sixd_to_16bit(int);
 static int xmakeglyphfontspecs(XftGlyphFontSpec *, const Glyph *, int, int, int);
@@ -239,6 +248,8 @@ static DC dc;
 static XWindow xw;
 static XSelection xsel;
 static TermWindow win;
+static int tstki; /* title stack index */
+static char *titlestack[TITLESTACKSIZE]; /* title stack */
 
 /* Font Ring Cache */
 enum {
@@ -1771,20 +1782,6 @@ xseticontitle(char *p)
 	XFree(prop.value);
 }
 
-void
-xsettitle(char *p)
-{
-	XTextProperty prop;
-	DEFAULT(p, opt_title);
-
-        if (Xutf8TextListToTextProperty(xw.dpy, &p, 1, XUTF8StringStyle,
-	                                &prop) != Success)
-		return;
-	XSetWMName(xw.dpy, xw.win, &prop);
-	XSetTextProperty(xw.dpy, xw.win, &prop, xw.netwmname);
-	XFree(prop.value);
-}
-
 int
 xstartdraw(void)
 {
@@ -2340,6 +2337,47 @@ config_init(void)
 	db = XrmGetStringDatabase(resm);
 	for (p = resources; p < resources + LEN(resources); p++)
 		resource_load(db, p->name, p->type, p->dst);
+}
+
+void
+xfreetitlestack(void)
+ {
+   for (int i = 0; i < LEN(titlestack); i++) {
+       free(titlestack[i]);
+       titlestack[i] = NULL;
+   }
+}
+
+void
+xsettitle(char *p, int pop)
+{
+   XTextProperty prop;
+    free(titlestack[tstki]);
+    if (pop) {
+       titlestack[tstki] = NULL;
+       tstki = (tstki - 1 + TITLESTACKSIZE) % TITLESTACKSIZE;
+       p = titlestack[tstki] ? titlestack[tstki] : opt_title;
+    } else if (p) {
+       titlestack[tstki] = xstrdup(p);
+    } else {
+       titlestack[tstki] = NULL;
+       p = opt_title;
+    }
+
+    Xutf8TextListToTextProperty(xw.dpy, &p, 1, XUTF8StringStyle, &prop);
+    XSetWMName(xw.dpy, xw.win, &prop);
+    XSetTextProperty(xw.dpy, xw.win, &prop, xw.netwmname);
+    XFree(prop.value);
+}
+
+void
+xpushtitle(void)
+{
+   int tstkin = (tstki + 1) % TITLESTACKSIZE;
+
+   free(titlestack[tstkin]);
+   titlestack[tstkin] = titlestack[tstki] ? xstrdup(titlestack[tstki]) : NULL;
+   tstki = tstkin;
 }
 
 void
