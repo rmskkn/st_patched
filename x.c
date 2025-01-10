@@ -2260,7 +2260,7 @@ xrdb_load(void)
 		XRESOURCE_LOAD_FLOAT("chscale", chscale);
 
 		/* XRESOURCE_LOAD_CHAR("prompt_char", prompt_char); */
-
+		setenv("TERM", termname, 1);
 	}
 	XFlush(dpy);
 }
@@ -2456,7 +2456,7 @@ run:
 
 	setlocale(LC_CTYPE, "");
 	XSetLocaleModifiers("");
-        xrdb_load();
+	xrdb_load();
 	signal(SIGUSR1, reload);
 
 	if(!(xw.dpy = XOpenDisplay(NULL)))
