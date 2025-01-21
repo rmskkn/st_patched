@@ -51,9 +51,6 @@
 
 #define TLINE_HIST(y)           ((y) <= HISTSIZE-term.row+2 ? term.hist[(y)] : term.line[(y-HISTSIZE+term.row-3)])
 
-/* constants */
-#define ISO14755CMD		"dmenu -w \"$WINDOWID\" -p codepoint: </dev/null"
-
 enum term_mode {
 	MODE_WRAP        = 1 << 0,
 	MODE_INSERT      = 1 << 1,
@@ -2184,28 +2181,6 @@ externalpipe(const Arg *arg)
 	close(to[1]);
 	/* restore */
 	signal(SIGPIPE, oldsigpipe);
-}
-
-void
-iso14755(const Arg *arg)
-{
-	FILE *p;
-	char *us, *e, codepoint[9], uc[UTF_SIZ];
-	unsigned long utf32;
-
-	if (!(p = popen(ISO14755CMD, "r")))
-		return;
-
-	us = fgets(codepoint, sizeof(codepoint), p);
-	pclose(p);
-
-	if (!us || *us == '\0' || *us == '-' || strlen(us) > 7)
-		return;
-	if ((utf32 = strtoul(us, &e, 16)) == ULONG_MAX ||
-	    (*e != '\n' && *e != '\0'))
-		return;
-
-	ttywrite(uc, utf8encode(utf32, uc), 1);
 }
 
 void

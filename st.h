@@ -100,7 +100,6 @@ void redraw(void);
 void draw(void);
 
 void externalpipe(const Arg *);
-void iso14755(const Arg *);
 void kscrolldown(const Arg *);
 void kscrollup(const Arg *);
 void newterm(const Arg *);
