@@ -1547,12 +1547,10 @@ tsetattr(const int *attr, int l)
 			} else if (BETWEEN(attr[i], 100, 107)) {
 				term.c.attr.bg = attr[i] - 100 + 8;
 			} else {
-#if 0
 				fprintf(stderr,
 					"erresc(default): gfx attr %d unknown\n",
 					attr[i]);
 				csidump();
-#endif
 			}
 			break;
 		}
