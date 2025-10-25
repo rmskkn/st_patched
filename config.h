@@ -337,7 +337,8 @@ static Shortcut shortcuts[] = {
   { ControlMask,          XK_C,           clipcopy,       {.i =  0} },
   { ShiftMask,            XK_Insert,      clippaste,      {.i =  0} },
   { ControlMask,          XK_V,           clippaste,      {.i =  0} },
-  { ControlMask,          XK_v,           selpaste,       {.i =  0} },
+  /* PRIMARY is not working properly, use CLIPBOARD instead */
+  { ControlMask,          XK_v,           clippaste,       {.i =  0} },
   { ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} },
   { ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} },
   { MODKEY,               XK_Page_Up,     kscrollup,      {.i = -1} },
