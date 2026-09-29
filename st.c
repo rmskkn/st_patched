@@ -34,7 +34,7 @@
 #define UTF_SIZ       4
 #define ESC_BUF_SIZ   (128*UTF_SIZ)
 #define ESC_ARG_SIZ   16
-#define STR_BUF_SIZ   ESC_BUF_SIZ
+#define STR_BUF_SIZ   (1024*1024) /* big enough for OSC 52 (tmux/vim) clipboard payloads */
 #define STR_ARG_SIZ   ESC_ARG_SIZ
 #define HISTSIZE      2000
 
@@ -1995,8 +1995,10 @@ strhandle(void)
 			return;
 		case 52:
 			if (narg > 2) {
-				dec = base64dec(strescseq.args[2]);
-				if (dec) {
+				if (!strcmp(strescseq.args[2], "?")) {
+					xselpaste(narg > 1 && strchr(strescseq.args[1], 'p')
+							? 'p' : 'c');
+				} else if ((dec = base64dec(strescseq.args[2]))) {
 					xsetsel(dec);
 					xclipcopy();
 				} else {

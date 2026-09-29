@@ -38,6 +38,7 @@ int xsetcursor(int);
 void xsetmode(int, unsigned int);
 void xsetpointermotion(int);
 void xsetsel(char *);
+void xselpaste(char);
 int xstartdraw(void);
 void xximspot(int, int);
 void xclearwin(void);

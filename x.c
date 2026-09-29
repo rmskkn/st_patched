@@ -318,6 +318,65 @@ selpaste(const Arg *dummy)
 			xw.win, CurrentTime);
 }
 
+/*
+ * OSC 52 clipboard-read query support ("\e]52;c;?\a" / "\e]52;p;?\a"):
+ * asks the real X selection owner for its current content (never our own
+ * stale xsel.primary/xsel.clipboard cache, which may be unset or outdated
+ * if some other client owns the selection), then relays the answer back to
+ * the pty as "\e]52;<pc>;<base64>\e\\" once selnotify() receives it.
+ * osc52query holds the requested Pc ('c' or 'p') while a request is in
+ * flight, or 0 when idle; only one request is tracked at a time, matching
+ * the single in-flight XConvertSelection model selpaste()/clippaste() use.
+ */
+static char osc52query = 0;
+
+void
+xselpaste(char which)
+{
+	Atom sel;
+
+	osc52query = (which == 'p') ? 'p' : 'c';
+	if (which == 'p') {
+		sel = XA_PRIMARY;
+	} else {
+		sel = XInternAtom(xw.dpy, "CLIPBOARD", 0);
+	}
+	XConvertSelection(xw.dpy, sel, xsel.xtarget, sel, xw.win, CurrentTime);
+}
+
+static char *
+base64enc(const uchar *src, size_t srclen)
+{
+	static const char b64[] =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	char *dst, *d;
+	size_t i = 0;
+
+	d = dst = xmalloc(((srclen + 2) / 3) * 4 + 1);
+	for (; i + 2 < srclen; i += 3) {
+		*d++ = b64[src[i] >> 2];
+		*d++ = b64[((src[i] & 0x03) << 4) | (src[i + 1] >> 4)];
+		*d++ = b64[((src[i + 1] & 0x0f) << 2) | (src[i + 2] >> 6)];
+		*d++ = b64[src[i + 2] & 0x3f];
+	}
+	switch (srclen - i) {
+	case 1:
+		*d++ = b64[src[i] >> 2];
+		*d++ = b64[(src[i] & 0x03) << 4];
+		*d++ = '=';
+		*d++ = '=';
+		break;
+	case 2:
+		*d++ = b64[src[i] >> 2];
+		*d++ = b64[((src[i] & 0x03) << 4) | (src[i + 1] >> 4)];
+		*d++ = b64[(src[i + 1] & 0x0f) << 2];
+		*d++ = '=';
+		break;
+	}
+	*d = '\0';
+	return dst;
+}
+
 void
 numlock(const Arg *dummy)
 {
@@ -541,6 +600,8 @@ selnotify(XEvent *e)
 	ulong nitems, ofs, rem;
 	int format;
 	uchar *data, *last, *repl;
+	uchar *qbuf = NULL;
+	size_t qlen = 0;
 	Atom type, incratom, property = None;
 
 	incratom = XInternAtom(xw.dpy, "INCR", 0);
@@ -551,8 +612,9 @@ selnotify(XEvent *e)
 	else if (e->type == PropertyNotify)
 		property = e->xproperty.atom;
 
-	if (property == None)
+	if (property == None) {
 		return;
+	}
 
 	do {
 		if (XGetWindowProperty(xw.dpy, xw.win, property, ofs,
@@ -560,6 +622,7 @@ selnotify(XEvent *e)
 					&type, &format, &nitems, &rem,
 					&data)) {
 			fprintf(stderr, "Clipboard allocation failed\n");
+			free(qbuf);
 			return;
 		}
 
@@ -592,28 +655,51 @@ selnotify(XEvent *e)
 			continue;
 		}
 
-		/*
-		 * As seen in getsel:
-		 * Line endings are inconsistent in the terminal and GUI world
-		 * copy and pasting. When receiving some selection data,
-		 * replace all '\n' with '\r'.
-		 * FIXME: Fix the computer world.
-		 */
-		repl = data;
-		last = data + nitems * format / 8;
-		while ((repl = memchr(repl, '\n', last - repl))) {
-			*repl++ = '\r';
-		}
+		if (osc52query) {
+			/*
+			 * Preserve the exact bytes for the base64 response;
+			 * only the raw-paste path below needs the \n -> \r
+			 * rewrite (it fakes literal terminal input).
+			 */
+			qbuf = xrealloc(qbuf, qlen + nitems * format / 8 + 1);
+			memcpy(qbuf + qlen, data, nitems * format / 8);
+			qlen += nitems * format / 8;
+		} else {
+			/*
+			 * As seen in getsel:
+			 * Line endings are inconsistent in the terminal and GUI
+			 * world copy and pasting. When receiving some selection
+			 * data, replace all '\n' with '\r'.
+			 * FIXME: Fix the computer world.
+			 */
+			repl = data;
+			last = data + nitems * format / 8;
+			while ((repl = memchr(repl, '\n', last - repl))) {
+				*repl++ = '\r';
+			}
 
-		if (IS_SET(MODE_BRCKTPASTE) && ofs == 0)
-			ttywrite("\033[200~", 6, 0);
-		ttywrite((char *)data, nitems * format / 8, 1);
-		if (IS_SET(MODE_BRCKTPASTE) && rem == 0)
-			ttywrite("\033[201~", 6, 0);
+			if (IS_SET(MODE_BRCKTPASTE) && ofs == 0)
+				ttywrite("\033[200~", 6, 0);
+			ttywrite((char *)data, nitems * format / 8, 1);
+			if (IS_SET(MODE_BRCKTPASTE) && rem == 0)
+				ttywrite("\033[201~", 6, 0);
+		}
 		XFree(data);
 		/* number of 32-bit chunks returned */
 		ofs += nitems * format / 32;
 	} while (rem > 0);
+
+	if (osc52query) {
+		char *b64 = base64enc(qbuf, qlen);
+		char *resp = xmalloc(strlen(b64) + 16);
+		int n = snprintf(resp, strlen(b64) + 16, "\033]52;%c;%s\033\\",
+				osc52query, b64);
+		ttywrite(resp, n, 0);
+		free(resp);
+		free(b64);
+		free(qbuf);
+		osc52query = 0;
+	}
 
 	/*
 	 * Deleting the property again tells the selection owner to send the
